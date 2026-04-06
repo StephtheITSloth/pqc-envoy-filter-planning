@@ -1,0 +1,48 @@
+// PQC Filter Configuration Protocol Buffer
+// 
+// This proto defines the configuration for the Post-Quantum Cryptography (PQC) HTTP filter.
+// The filter negotiates PQC-capable upstreams and manages hybrid/classical fallback.
+//
+// Filter name: envoy.filters.http.pqc
+// 
+// TODO: Add validation rules and additional configuration options in later steps.
+
+syntax = "proto3";
+
+package pqc.envoy.config.v1;
+
+import "google/protobuf/wrappers.proto";
+
+// [#protodoc-title: PQC Filter]
+// PQC filter configuration.
+// [#extension: envoy.filters.http.pqc]
+
+// Main configuration for the PQC HTTP filter
+message PqcFilter {
+  // Operating mode for PQC negotiation
+  enum Mode {
+    // Unspecified mode (defaults to CLASSICAL)
+    MODE_UNSPECIFIED = 0;
+    
+    // Classical cryptography only (no PQC)
+    CLASSICAL = 1;
+    
+    // Hybrid mode: PQC with classical fallback
+    HYBRID = 2;
+    
+    // Pure PQC mode: quantum-safe only, no fallback
+    PQC_ONLY = 3;
+  }
+  
+  // Operating mode for this filter instance
+  Mode mode = 1;
+  
+  // Enable the PQC filter
+  // If false, filter passes through without modification
+  google.protobuf.BoolValue enabled = 2;
+  
+  // TODO: Add feature flags configuration
+  // TODO: Add policy engine configuration
+  // TODO: Add fallback configuration
+  // TODO: Add observability configuration
+}
