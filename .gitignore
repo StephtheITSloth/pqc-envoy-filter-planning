@@ -1,0 +1,121 @@
+# AI Agent Project Planning - .gitignore
+
+# ============================================
+# IDE and Editor Files
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================
+# AI Agent Specific
+# ============================================
+# Local agent state and cache
+.bob/cache/
+.bob/state/
+.bob/logs/
+
+# Agent conversation history (if stored locally)
+.agent-history/
+.conversation-cache/
+
+# Temporary planning files
+*.tmp.md
+*_DRAFT.md
+*_WIP.md
+
+# Project-specific implementation plans (keep template, ignore instances)
+IMPLEMENTATION_PLAN.md
+
+# ============================================
+# Build Artifacts (for future implementation)
+# ============================================
+# Bazel
+bazel-*
+.bazelrc.user
+
+# C++ build artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+build/
+dist/
+*.dSYM/
+
+# ============================================
+# Dependencies and Packages
+# ============================================
+node_modules/
+vendor/
+*.egg-info/
+__pycache__/
+*.pyc
+.Python
+
+# ============================================
+# Docker
+# ============================================
+.dockerignore
+docker-compose.override.yml
+
+# ============================================
+# Logs and Databases
+# ============================================
+*.log
+*.sql
+*.sqlite
+*.db
+
+# ============================================
+# Environment and Secrets
+# ============================================
+.env
+.env.local
+.env.*.local
+secrets.yaml
+credentials.json
+*.pem
+*.key
+*.crt
+
+# ============================================
+# Test Coverage and Reports
+# ============================================
+coverage/
+.coverage
+*.cover
+htmlcov/
+.pytest_cache/
+test-results/
+
+# ============================================
+# OS Generated Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ============================================
+# Backup Files
+# ============================================
+*.bak
+*.backup
+*~
+
+# ============================================
+# Project Specific
+# ============================================
+# Keep planning docs but ignore work-in-progress
+TODO_PERSONAL.md
+NOTES_PRIVATE.md
