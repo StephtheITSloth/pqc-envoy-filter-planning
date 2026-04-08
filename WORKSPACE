@@ -4,7 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "envoy",
-    sha256 = "C5628B609EF9E5FAFE872B8828089A189BFBFFB6E261B8C4D34EFF4C65229A3F",
+        sha256 = "c5628b609ef9e5fafe872b8828089a189bfbffb6e261b8c4d34eff4c65229a3f",
     strip_prefix = "envoy-1.28.0",
     urls = ["https://github.com/envoyproxy/envoy/archive/refs/tags/v1.28.0.tar.gz"],
 )
