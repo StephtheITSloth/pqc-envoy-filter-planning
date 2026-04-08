@@ -81,10 +81,9 @@ build:windows --host_cxxopt=/std:c++17
 
 # Performance settings
 build --jobs=auto
-build --local_cpu_resources=HOST_CPUS*.75
 
 # Disk cache
-build --disk_cache=~/.cache/bazel
+build --disk_cache=/tmp/bazel-disk-cache
 
 # Remote cache (optional, configure if available)
 # build --remote_cache=grpc://your-cache-server:port
