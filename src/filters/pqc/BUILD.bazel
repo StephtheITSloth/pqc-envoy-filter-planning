@@ -16,22 +16,121 @@ filegroup(
     ]),
 )
 
+# PQC context library - connection state and cipher metadata
 envoy_cc_library(
-    name = "pqc_filter_lib",
-    srcs = [
-        "pqc_filter.cc",
-    ],
-    hdrs = [
-        "pqc_filter.h",
-    ],
+    name = "context_lib",
+    srcs = ["context.cc"],
+    hdrs = ["context.h"],
     repository = "@envoy",
     deps = [
+        "//src/config:pqc_filter_cc_proto",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+# PQC policy engine - routing and fallback decisions
+envoy_cc_library(
+    name = "policy_engine_lib",
+    srcs = ["policy_engine.cc"],
+    hdrs = ["policy_engine.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        "//src/config:pqc_filter_cc_proto",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# PQC metrics library - Prometheus counters and histograms
+envoy_cc_library(
+    name = "metrics_lib",
+    srcs = ["metrics.cc"],
+    hdrs = ["metrics.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        "@envoy//envoy/stats:stats_interface",
+        "@envoy//source/common/stats:utility_lib",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# PQC logger library - structured JSON logging
+envoy_cc_library(
+    name = "logger_lib",
+    srcs = ["logger.cc"],
+    hdrs = ["logger.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        "@envoy//source/common/common:logger_lib",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# PQC fallback manager - circuit breaker and rollback logic
+envoy_cc_library(
+    name = "fallback_manager_lib",
+    srcs = ["fallback_manager.cc"],
+    hdrs = ["fallback_manager.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        ":metrics_lib",
+        "//src/config:pqc_filter_cc_proto",
+        "@com_google_absl//absl/synchronization",
+    ],
+)
+
+# PQC config library - configuration validation helpers
+envoy_cc_library(
+    name = "config_lib",
+    srcs = ["config.cc"],
+    hdrs = [],
+    repository = "@envoy",
+    deps = [
+        ":pqc_filter_lib",
+        "//src/config:pqc_filter_cc_proto",
+        "@envoy//envoy/server:filter_config_interface",
+        "@envoy//source/extensions/filters/http/common:pass_through_filter_lib",
+    ],
+)
+
+# PQC HTTP filter - main filter implementation
+envoy_cc_library(
+    name = "pqc_filter_lib",
+    srcs = ["pqc_filter.cc"],
+    hdrs = ["pqc_filter.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        ":policy_engine_lib",
+        ":metrics_lib",
+        ":logger_lib",
+        ":fallback_manager_lib",
         "//src/config:pqc_filter_cc_proto",
         "@envoy//envoy/http:filter_interface",
         "@envoy//envoy/server:filter_config_interface",
         "@envoy//source/common/common:assert_lib",
         "@envoy//source/common/http:header_map_lib",
         "@envoy//source/common/http:headers_lib",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# PQC network filter - L4 TLS inspection
+envoy_cc_library(
+    name = "pqc_network_filter_lib",
+    srcs = ["pqc_network_filter.cc"],
+    hdrs = ["pqc_network_filter.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        ":metrics_lib",
+        "//src/config:pqc_filter_cc_proto",
+        "@envoy//envoy/network:filter_interface",
+        "@envoy//envoy/server:filter_config_interface",
         "@com_google_absl//absl/strings",
     ],
 )
