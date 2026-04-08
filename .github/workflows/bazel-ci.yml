@@ -18,8 +18,10 @@ jobs:
 
       - name: Install Bazelisk
         run: |
-          curl -Lo /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64
-          chmod +x /usr/local/bin/bazel
+          mkdir -p "${HOME}/bin"
+          curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64" -o "${HOME}/bin/bazel"
+          chmod +x "${HOME}/bin/bazel"
+          echo "${HOME}/bin" >> "${GITHUB_PATH}"
 
       - name: Cache Bazel output
         uses: actions/cache@v4
