@@ -30,7 +30,10 @@ Thumbs.db
 
 # Project-specific implementation plans (keep template, ignore instances)
 IMPLEMENTATION_PLAN.md
-
+GITIGNORE_PLAN.md
+CODE_MODE_IMPLEMENTATION_PROMPT.md
+AI_AGENT_PROJECT_PLANNING_ROADMAP.md
+AI_AGENT_IMPLEMENTATION_ROADMAP_PROMPT.md
 # ============================================
 # Build Artifacts (for future implementation)
 # ============================================
@@ -119,3 +122,6 @@ Thumbs.db
 # Keep planning docs but ignore work-in-progress
 TODO_PERSONAL.md
 NOTES_PRIVATE.md
+STEP_1_SUMMARY.md
+STEP_1.2_BUILD_SYSTEM_SUMMARY.md
+STEP_2_TDD_IMPLEMENTATION_SUMMARY.md
