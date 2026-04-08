@@ -4,9 +4,11 @@ workspace(name = "pqc_envoy_filter")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Envoy dependency
+# Run the following to get the proper hash tag for the envoy:  Invoke-WebRequest -Uri "https://github.com/envoyproxy/envoy/archive/refs/tags/v1.28.0.tar.gz" -OutFile "envoy-v1.28.0.tar.gz"
+# Run this next: Get-FileHash .\envoy-v1.28.0.tar.gz -Algorithm SHA256
 http_archive(
     name = "envoy",
-    sha256 = "8c8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f",
+    sha256 = "C5628B609EF9E5FAFE872B8828089A189BFBFFB6E261B8C4D34EFF4C65229A3F",
     strip_prefix = "envoy-1.28.0",
     urls = ["https://github.com/envoyproxy/envoy/archive/refs/tags/v1.28.0.tar.gz"],
 )
@@ -35,9 +37,9 @@ envoy_dependency_imports()
 # In production, replace with actual BoringSSL PQC fork URL
 http_archive(
     name = "boringssl_pqc",
-    sha256 = "0000000000000000000000000000000000000000000000000000000000000000",
-    strip_prefix = "boringssl-pqc-main",
-    urls = ["https://github.com/open-quantum-safe/boringssl/archive/refs/heads/main.tar.gz"],
+    sha256 = "1e759891e168c5957f2f4d519929e2b4cef9303b7cf2049601081f4fca95bf21",
+    strip_prefix = "boringssl-88d7a40bd06a34da6ee0d985545755199d047258",
+    urls = ["https://github.com/google/boringssl/archive/88d7a40bd06a34da6ee0d985545755199d047258.tar.gz"],
 )
 
 # Google Test framework (already included via Envoy, but explicit for clarity)
