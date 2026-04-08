@@ -1,0 +1,9 @@
+# Root BUILD.bazel
+# Required by Bazel to recognize the repo root as a package.
+# Also required by envoy_extension_package() which emits a //:enabled target.
+
+load("@envoy//bazel:envoy_build_system.bzl", "envoy_package")
+
+licenses(["notice"])  # Apache 2
+
+envoy_package()
