@@ -1,76 +1,28 @@
-# Docker Compose for PQC Envoy Filter Development
+name: Dev Docker Build
 
-version: '3.8'
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
 
-services:
-  # Development container with Bazel and build tools
-  dev:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.dev
-    container_name: pqc-envoy-dev
-    volumes:
-      - ..:/workspace
-      - bazel-cache:/root/.cache/bazel
-    working_dir: /workspace
-    command: /bin/bash
-    stdin_open: true
-    tty: true
+jobs:
+  build-dev-image:
+    runs-on: ubuntu-latest
 
-  # Envoy proxy with PQC filter (for testing)
-  envoy:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.envoy
-    container_name: pqc-envoy
-    ports:
-      - "8443:8443"  # HTTPS with PQC
-      - "9901:9901"  # Admin interface
-    volumes:
-      - ../config:/etc/envoy
-    command: envoy -c /etc/envoy/bootstrap.yaml
-    depends_on:
-      - backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  # Mock backend service
-  backend:
-    image: hashicorp/http-echo:latest
-    container_name: pqc-backend
-    command: ["-text", "Hello from PQC-protected backend!"]
-    ports:
-      - "5678:5678"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-  # Prometheus for metrics
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: pqc-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ../config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-
-  # Grafana for dashboards
-  grafana:
-    image: grafana/grafana:latest
-    container_name: pqc-grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - ../dashboards:/etc/grafana/provisioning/dashboards
-      - grafana-data:/var/lib/grafana
-    depends_on:
-      - prometheus
-
-volumes:
-  bazel-cache:
-  prometheus-data:
-  grafana-data:
-
-# Made with Bob
+      - name: Build dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.dev
+          push: false
+          load: false
+          tags: pqc-envoy-filter-dev:ci
