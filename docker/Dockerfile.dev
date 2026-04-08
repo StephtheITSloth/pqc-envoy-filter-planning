@@ -1,6 +1,6 @@
 # Development Docker container for PQC Envoy Filter
 # Includes Bazel, build tools, and all dependencies
-FROM envoyproxy/envoy-build-ubuntu:7672021c1ba8
+FROM envoyproxy/envoy-dev:4f5386abdc9a52340a892e56ca8a50a6e196c98f
 
 WORKDIR /workspace
 
