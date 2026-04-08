@@ -125,3 +125,14 @@ NOTES_PRIVATE.md
 STEP_1_SUMMARY.md
 STEP_1.2_BUILD_SYSTEM_SUMMARY.md
 STEP_2_TDD_IMPLEMENTATION_SUMMARY.md
+
+# ============================================
+# Large Binary / Archive Files
+# ============================================
+# Envoy and dependency source tarballs fetched by Bazel WORKSPACE
+# These should never be committed - Bazel downloads them via http_archive
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+envoy-v*.tar.gz
