@@ -1,0 +1,102 @@
+# Bazel configuration for PQC Envoy Filter
+
+# C++ standard
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
+
+# Optimization flags
+build:opt --compilation_mode=opt
+build:opt --copt=-O3
+build:opt --copt=-DNDEBUG
+
+# Debug flags
+build:dbg --compilation_mode=dbg
+build:dbg --copt=-g
+build:dbg --copt=-O0
+build:dbg --strip=never
+
+# Fastbuild (default)
+build:fastbuild --compilation_mode=fastbuild
+
+# Warning flags
+build --copt=-Wall
+build --copt=-Wextra
+build --copt=-Werror
+build --host_copt=-Wall
+build --host_copt=-Wextra
+
+# Disable specific warnings that are too noisy
+build --copt=-Wno-unused-parameter
+build --copt=-Wno-sign-compare
+
+# Test configuration
+test --test_output=errors
+test --test_summary=detailed
+test --test_verbose_timeout_warnings
+
+# Test size timeouts
+test --test_timeout=60,300,900,3600
+
+# Coverage configuration
+coverage --combined_report=lcov
+coverage --instrumentation_filter="//src[/:]"
+coverage --test_output=errors
+
+# Address sanitizer
+build:asan --strip=never
+build:asan --copt=-fsanitize=address
+build:asan --copt=-DADDRESS_SANITIZER
+build:asan --copt=-O1
+build:asan --copt=-g
+build:asan --copt=-fno-omit-frame-pointer
+build:asan --linkopt=-fsanitize=address
+
+# Thread sanitizer
+build:tsan --strip=never
+build:tsan --copt=-fsanitize=thread
+build:tsan --copt=-DTHREAD_SANITIZER
+build:tsan --copt=-O1
+build:tsan --copt=-g
+build:tsan --copt=-fno-omit-frame-pointer
+build:tsan --linkopt=-fsanitize=thread
+
+# Undefined behavior sanitizer
+build:ubsan --strip=never
+build:ubsan --copt=-fsanitize=undefined
+build:ubsan --copt=-DUNDEFINED_SANITIZER
+build:ubsan --copt=-O1
+build:ubsan --copt=-g
+build:ubsan --copt=-fno-omit-frame-pointer
+build:ubsan --linkopt=-fsanitize=undefined
+
+# Platform-specific settings
+build:linux --cxxopt=-fPIC
+build:linux --host_cxxopt=-fPIC
+
+build:macos --cxxopt=-fPIC
+build:macos --host_cxxopt=-fPIC
+
+build:windows --cxxopt=/std:c++17
+build:windows --host_cxxopt=/std:c++17
+
+# Performance settings
+build --jobs=auto
+build --local_cpu_resources=HOST_CPUS*.75
+
+# Disk cache
+build --disk_cache=~/.cache/bazel
+
+# Remote cache (optional, configure if available)
+# build --remote_cache=grpc://your-cache-server:port
+
+# Verbose failures
+build --verbose_failures
+
+# Show test output on failure
+test --test_output=errors
+
+# Default to fastbuild
+build --compilation_mode=fastbuild
+
+# Import user-specific settings if available
+try-import %workspace%/.bazelrc.user

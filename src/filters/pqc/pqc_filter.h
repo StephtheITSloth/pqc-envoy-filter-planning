@@ -21,6 +21,7 @@
 #include "envoy/server/filter_config.h"
 
 #include "src/config/pqc_filter.pb.h"
+#include "src/filters/pqc/context.h"
 
 namespace Envoy {
 namespace Extensions {
@@ -90,7 +91,9 @@ private:
   PqcFilterConfigSharedPtr config_;
   Http::StreamDecoderFilterCallbacks* decoder_callbacks_{nullptr};
   
-  // TODO: Add PqcContext member in later step
+  // PQC connection context
+  PqcContextSharedPtr context_;
+  
   // TODO: Add PolicyEngine member in later step
 };
 

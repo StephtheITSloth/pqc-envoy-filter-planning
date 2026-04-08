@@ -106,17 +106,64 @@ TEST_F(PqcFilterTest, OnDestroy) {
   filter_->onDestroy();
 }
 
-// TODO: Add test for PQC-capable connection
-// TEST_F(PqcFilterTest, PqcCapableConnection) {
-//   // Setup mock TLS connection with PQC cipher
-//   // Verify headers are annotated correctly
-// }
+// Test: PQC-capable connection extracts context and annotates headers
+TEST_F(PqcFilterTest, PqcCapableConnection) {
+  // Setup mock TLS connection with PQC cipher
+  auto ssl_connection = std::make_shared<NiceMock<Ssl::MockConnectionInfo>>();
+  EXPECT_CALL(*ssl_connection, peerCertificatePresented()).WillRepeatedly(Return(true));
+  EXPECT_CALL(*ssl_connection, ciphersuiteString())
+      .WillRepeatedly(Return("TLS_ML_KEM_768_SHA256"));
+  EXPECT_CALL(*ssl_connection, tlsVersion())
+      .WillRepeatedly(Return("TLSv1.3"));
+  
+  auto connection = std::make_shared<NiceMock<Network::MockConnection>>();
+  EXPECT_CALL(*connection, ssl()).WillRepeatedly(Return(ssl_connection));
+  EXPECT_CALL(decoder_callbacks_, connection()).WillRepeatedly(Return(connection));
+  
+  Http::TestRequestHeaderMapImpl headers{
+      {":method", "GET"},
+      {":path", "/test"},
+      {":authority", "example.com"}
+  };
+  
+  // Execute filter
+  EXPECT_EQ(Http::FilterHeadersStatus::Continue,
+            filter_->decodeHeaders(headers, false));
+  
+  // Verify PQC headers are added
+  EXPECT_EQ("true", headers.get_("x-pqc-capable"));
+  EXPECT_EQ("TLS_ML_KEM_768_SHA256", headers.get_("x-pqc-cipher"));
+  EXPECT_EQ("TLSv1.3", headers.get_("x-pqc-tls-version"));
+}
 
-// TODO: Add test for classical-only connection
-// TEST_F(PqcFilterTest, ClassicalOnlyConnection) {
-//   // Setup mock TLS connection with classical cipher
-//   // Verify headers indicate no PQC capability
-// }
+// Test: Classical-only connection is detected correctly
+TEST_F(PqcFilterTest, ClassicalOnlyConnection) {
+  // Setup mock TLS connection with classical cipher
+  auto ssl_connection = std::make_shared<NiceMock<Ssl::MockConnectionInfo>>();
+  EXPECT_CALL(*ssl_connection, peerCertificatePresented()).WillRepeatedly(Return(true));
+  EXPECT_CALL(*ssl_connection, ciphersuiteString())
+      .WillRepeatedly(Return("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"));
+  EXPECT_CALL(*ssl_connection, tlsVersion())
+      .WillRepeatedly(Return("TLSv1.2"));
+  
+  auto connection = std::make_shared<NiceMock<Network::MockConnection>>();
+  EXPECT_CALL(*connection, ssl()).WillRepeatedly(Return(ssl_connection));
+  EXPECT_CALL(decoder_callbacks_, connection()).WillRepeatedly(Return(connection));
+  
+  Http::TestRequestHeaderMapImpl headers{
+      {":method", "GET"},
+      {":path", "/test"},
+      {":authority", "example.com"}
+  };
+  
+  // Execute filter
+  EXPECT_EQ(Http::FilterHeadersStatus::Continue,
+            filter_->decodeHeaders(headers, false));
+  
+  // Verify headers indicate no PQC capability
+  EXPECT_EQ("false", headers.get_("x-pqc-capable"));
+  EXPECT_EQ("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", headers.get_("x-pqc-cipher"));
+}
 
 // TODO: Add test for hybrid mode fallback
 // TEST_F(PqcFilterTest, HybridModeFallback) {

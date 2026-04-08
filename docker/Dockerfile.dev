@@ -1,0 +1,36 @@
+# Development Docker container for PQC Envoy Filter
+# Includes Bazel, build tools, and all dependencies
+
+FROM envoyproxy/envoy-build-ubuntu:0ca52447572ee105a4730da5e76fe47c9c5a7c64
+
+# Set working directory
+WORKDIR /workspace
+
+# Fix repository GPG key issue and install additional development tools
+RUN rm -f /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list \
+    && apt-get update && apt-get install -y \
+    vim \
+    git \
+    curl \
+    wget \
+    tree \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Bazelisk (manages Bazel versions)
+RUN wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 \
+    && chmod +x /usr/local/bin/bazel
+
+# Set up Bazel cache directory
+RUN mkdir -p /root/.cache/bazel
+
+# Copy workspace files
+COPY WORKSPACE .bazelrc ./
+COPY src/ ./src/
+COPY test/ ./test/
+
+# Pre-fetch dependencies (optional, speeds up first build)
+# RUN bazel fetch //...
+
+# Default command
+CMD ["/bin/bash"]

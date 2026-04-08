@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package pqc.envoy.config.v1;
+
+import "google/protobuf/wrappers.proto";
+
+// Policy configuration for PQC routing decisions.
+message PolicyConfig {
+  // Default action when no route-specific policy matches
+  PolicyAction default_action = 1;
+  
+  // Route-specific policies
+  repeated RoutePolicy route_policies = 2;
+  
+  // Require PQC for specific services
+  repeated string require_pqc_services = 3;
+  
+  // Allow classical fallback for specific services
+  repeated string allow_fallback_services = 4;
+}
+
+// Policy action to take
+enum PolicyAction {
+  // Unspecified action (invalid)
+  ACTION_UNSPECIFIED = 0;
+  
+  // Allow the connection
+  ALLOW = 1;
+  
+  // Deny the connection
+  DENY = 2;
+  
+  // Fallback to classical crypto
+  FALLBACK = 3;
+}
+
+// Route-specific policy
+message RoutePolicy {
+  // Route matcher (e.g., "/api/v1/*")
+  string route_pattern = 1;
+  
+  // Action to take for this route
+  PolicyAction action = 2;
+  
+  // Require PQC for this route
+  google.protobuf.BoolValue require_pqc = 3;
+  
+  // Allow fallback for this route
+  google.protobuf.BoolValue allow_fallback = 4;
+  
+  // Priority (higher = evaluated first)
+  int32 priority = 5;
+}
+
+// Policy evaluation result
+message PolicyDecision {
+  // Action to take
+  PolicyAction action = 1;
+  
+  // Reason for the decision
+  string reason = 2;
+  
+  // Matched route policy (if any)
+  string matched_route = 3;
+}

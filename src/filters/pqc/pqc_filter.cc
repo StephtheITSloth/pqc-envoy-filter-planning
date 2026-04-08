@@ -11,6 +11,10 @@
 #include "src/filters/pqc/pqc_filter.h"
 
 #include "envoy/http/codes.h"
+#include "envoy/network/connection.h"
+#include "envoy/ssl/connection.h"
+
+#include "absl/strings/string_view.h"
 
 namespace Envoy {
 namespace Extensions {
@@ -35,8 +39,9 @@ bool PqcFilterConfig::isEnabled() const {
 
 // PqcFilter implementation
 
-PqcFilter::PqcFilter(PqcFilterConfigSharedPtr config) 
-    : config_(std::move(config)) {
+PqcFilter::PqcFilter(PqcFilterConfigSharedPtr config)
+    : config_(std::move(config)),
+      context_(std::make_shared<PqcContext>()) {
   // TODO: Initialize metrics in observability phase
 }
 
@@ -85,20 +90,92 @@ void PqcFilter::onDestroy() {
 }
 
 void PqcFilter::extractPqcContext() {
-  // TODO: Implement PQC context extraction
-  // 1. Get downstream connection from decoder_callbacks_
-  // 2. Check if connection has TLS
-  // 3. Extract cipher suite information
-  // 4. Determine if PQC-capable
-  // 5. Store in PqcContext member
+  if (!decoder_callbacks_) {
+    return;
+  }
+  
+  // Get downstream connection
+  const auto* connection = decoder_callbacks_->connection();
+  if (!connection) {
+    return;
+  }
+  
+  // Check if connection has TLS
+  const auto* ssl = connection->ssl();
+  if (!ssl) {
+    context_->setPqcCapable(false);
+    return;
+  }
+  
+  // Extract cipher suite information
+  const std::string cipher = ssl->ciphersuiteString();
+  context_->setNegotiatedCipher(cipher);
+  
+  // Extract TLS version
+  const std::string tls_version = ssl->tlsVersion();
+  context_->setTlsVersion(tls_version);
+  
+  // Determine if PQC-capable based on cipher suite name
+  // PQC cipher suites typically contain "ML_KEM", "ML_DSA", or "SLH_DSA"
+  bool is_pqc = (cipher.find("ML_KEM") != std::string::npos ||
+                 cipher.find("ML_DSA") != std::string::npos ||
+                 cipher.find("SLH_DSA") != std::string::npos);
+  context_->setPqcCapable(is_pqc);
+  
+  // Extract client IP if available
+  if (connection->connectionInfoProvider().remoteAddress()) {
+    context_->setClientIp(
+        connection->connectionInfoProvider().remoteAddress()->asString());
+  }
+  
+  // Extract SNI if available
+  if (!ssl->sni().empty()) {
+    context_->setSni(ssl->sni());
+  }
 }
 
 void PqcFilter::annotatePqcHeaders(Http::RequestHeaderMap& headers) {
-  // TODO: Implement header annotation
-  // Add headers like:
-  // - x-pqc-capable: true/false
-  // - x-pqc-cipher: <cipher_suite>
-  // - x-pqc-mode: <mode>
+  if (!context_) {
+    return;
+  }
+  
+  // Add x-pqc-capable header
+  headers.addCopy(Http::LowerCaseString("x-pqc-capable"),
+                  context_->isPqcCapable() ? "true" : "false");
+  
+  // Add x-pqc-cipher header if available
+  if (context_->negotiatedCipher().has_value()) {
+    headers.addCopy(Http::LowerCaseString("x-pqc-cipher"),
+                    context_->negotiatedCipher().value());
+  }
+  
+  // Add x-pqc-tls-version header if available
+  if (context_->tlsVersion().has_value()) {
+    headers.addCopy(Http::LowerCaseString("x-pqc-tls-version"),
+                    context_->tlsVersion().value());
+  }
+  
+  // Add x-pqc-fallback header if fallback occurred
+  if (context_->hasFallback()) {
+    headers.addCopy(Http::LowerCaseString("x-pqc-fallback"), "true");
+  }
+  
+  // Add x-pqc-mode header based on configuration
+  const char* mode_str = "unknown";
+  switch (config_->mode()) {
+    case pqc::envoy::config::v1::PqcFilter::CLASSICAL:
+      mode_str = "classical";
+      break;
+    case pqc::envoy::config::v1::PqcFilter::HYBRID:
+      mode_str = "hybrid";
+      break;
+    case pqc::envoy::config::v1::PqcFilter::PQC_ONLY:
+      mode_str = "pqc_only";
+      break;
+    default:
+      break;
+  }
+  headers.addCopy(Http::LowerCaseString("x-pqc-mode"), mode_str);
 }
 
 void PqcFilter::recordMetrics() {

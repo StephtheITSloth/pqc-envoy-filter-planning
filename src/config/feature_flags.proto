@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package pqc.envoy.config.v1;
+
+import "google/protobuf/wrappers.proto";
+
+// Feature flags for PQC filter functionality.
+// Allows runtime control of features without redeployment.
+message FeatureFlags {
+  // Enable/disable PQC filter globally
+  google.protobuf.BoolValue pqc_enabled = 1;
+  
+  // Enable/disable hybrid mode
+  google.protobuf.BoolValue hybrid_mode_enabled = 2;
+  
+  // Enable/disable automatic fallback
+  google.protobuf.BoolValue fallback_enabled = 3;
+  
+  // Enable/disable metrics collection
+  google.protobuf.BoolValue metrics_enabled = 4;
+  
+  // Enable/disable distributed tracing
+  google.protobuf.BoolValue tracing_enabled = 5;
+  
+  // Canary percentage (0-100)
+  // Only apply PQC to this percentage of traffic
+  int32 canary_percentage = 6;
+  
+  // Per-service feature flags
+  // Key: service name, Value: enabled/disabled
+  map<string, bool> service_flags = 7;
+}

@@ -1,0 +1,140 @@
+# PQC HTTP Filter implementation
+
+load(
+    "@envoy//bazel:envoy_build_system.bzl",
+    "envoy_cc_extension",
+    "envoy_cc_library",
+    "envoy_extension_package",
+)
+
+licenses(["notice"])  # Apache 2
+
+envoy_extension_package()
+
+# PQC Filter library
+envoy_cc_library(
+    name = "pqc_filter_lib",
+    srcs = [
+        "pqc_filter.cc",
+    ],
+    hdrs = [
+        "pqc_filter.h",
+    ],
+    repository = "@envoy",
+    deps = [
+        "//src/config:pqc_filter_cc_proto",
+        "@envoy//envoy/http:filter_interface",
+        "@envoy//envoy/server:filter_config_interface",
+        "@envoy//source/common/common:assert_lib",
+        "@envoy//source/common/http:header_map_lib",
+        "@envoy//source/common/http:headers_lib",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# PQC Filter factory/registration
+envoy_cc_extension(
+    name = "config",
+    srcs = ["config.cc"],
+    repository = "@envoy",
+    deps = [
+        ":pqc_filter_lib",
+        "//src/config:pqc_filter_cc_proto",
+        "@envoy//envoy/registry",
+        "@envoy//envoy/server:filter_config_interface",
+        "@envoy//source/extensions/filters/http/common:factory_base_lib",
+    ],
+)
+
+# PQC Context library (to be implemented)
+envoy_cc_library(
+    name = "context_lib",
+    srcs = ["context.cc"],
+    hdrs = ["context.h"],
+    repository = "@envoy",
+    deps = [
+        "@envoy//envoy/network:connection_interface",
+        "@envoy//envoy/ssl:connection_interface",
+        "@envoy//source/common/common:assert_lib",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+# Policy Engine library (to be implemented)
+envoy_cc_library(
+    name = "policy_engine_lib",
+    srcs = ["policy_engine.cc"],
+    hdrs = ["policy_engine.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        "//src/config:policy_cc_proto",
+        "@envoy//source/common/common:assert_lib",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+    ],
+)
+
+# Fallback Manager library (to be implemented)
+envoy_cc_library(
+    name = "fallback_manager_lib",
+    srcs = ["fallback_manager.cc"],
+    hdrs = ["fallback_manager.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        "@envoy//source/common/common:assert_lib",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+    ],
+)
+
+# Metrics library (to be implemented)
+envoy_cc_library(
+    name = "metrics_lib",
+    srcs = ["metrics.cc"],
+    hdrs = ["metrics.h"],
+    repository = "@envoy",
+    deps = [
+        "@envoy//envoy/stats:stats_interface",
+        "@envoy//source/common/stats:symbol_table_lib",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# Logger library (to be implemented)
+envoy_cc_library(
+    name = "logger_lib",
+    srcs = ["logger.cc"],
+    hdrs = ["logger.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        "@envoy//source/common/common:logger_lib",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# Network filter for TLS inspection (to be implemented)
+envoy_cc_library(
+    name = "pqc_network_filter_lib",
+    srcs = ["pqc_network_filter.cc"],
+    hdrs = ["pqc_network_filter.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        "@envoy//envoy/network:filter_interface",
+        "@envoy//envoy/ssl:connection_interface",
+        "@envoy//source/common/common:assert_lib",
+    ],
+)
+
+# All filter components
+filegroup(
+    name = "all_sources",
+    srcs = glob([
+        "*.cc",
+        "*.h",
+    ]),
+)

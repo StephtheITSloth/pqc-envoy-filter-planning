@@ -1,0 +1,108 @@
+# Unit tests for PQC HTTP Filter
+
+load(
+    "@envoy//bazel:envoy_build_system.bzl",
+    "envoy_cc_test",
+    "envoy_package",
+)
+
+licenses(["notice"])  # Apache 2
+
+envoy_package()
+
+# PQC Filter unit tests
+envoy_cc_test(
+    name = "pqc_filter_test",
+    srcs = ["pqc_filter_test.cc"],
+    repository = "@envoy",
+    deps = [
+        "//src/filters/pqc:pqc_filter_lib",
+        "//src/config:pqc_filter_cc_proto",
+        "@envoy//test/mocks/http:http_mocks",
+        "@envoy//test/mocks/server:server_mocks",
+        "@envoy//test/test_common:utility_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+# PQC Context unit tests (to be implemented)
+envoy_cc_test(
+    name = "context_test",
+    srcs = ["context_test.cc"],
+    repository = "@envoy",
+    deps = [
+        "//src/filters/pqc:context_lib",
+        "@envoy//test/mocks/network:network_mocks",
+        "@envoy//test/mocks/ssl:ssl_mocks",
+        "@envoy//test/test_common:utility_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+# Policy Engine unit tests (to be implemented)
+envoy_cc_test(
+    name = "policy_engine_test",
+    srcs = ["policy_engine_test.cc"],
+    repository = "@envoy",
+    deps = [
+        "//src/filters/pqc:policy_engine_lib",
+        "//src/filters/pqc:context_lib",
+        "//src/config:policy_cc_proto",
+        "@envoy//test/test_common:utility_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+# Fallback Manager unit tests (to be implemented)
+envoy_cc_test(
+    name = "fallback_manager_test",
+    srcs = ["fallback_manager_test.cc"],
+    repository = "@envoy",
+    deps = [
+        "//src/filters/pqc:fallback_manager_lib",
+        "//src/filters/pqc:context_lib",
+        "@envoy//test/test_common:utility_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+# Metrics unit tests (to be implemented)
+envoy_cc_test(
+    name = "metrics_test",
+    srcs = ["metrics_test.cc"],
+    repository = "@envoy",
+    deps = [
+        "//src/filters/pqc:metrics_lib",
+        "@envoy//test/mocks/stats:stats_mocks",
+        "@envoy//test/test_common:utility_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+# Network filter unit tests (to be implemented)
+envoy_cc_test(
+    name = "pqc_network_filter_test",
+    srcs = ["pqc_network_filter_test.cc"],
+    repository = "@envoy",
+    deps = [
+        "//src/filters/pqc:pqc_network_filter_lib",
+        "//src/filters/pqc:context_lib",
+        "@envoy//test/mocks/network:network_mocks",
+        "@envoy//test/mocks/ssl:ssl_mocks",
+        "@envoy//test/test_common:utility_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+# Test suite for all PQC filter tests
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":pqc_filter_test",
+        ":context_test",
+        ":policy_engine_test",
+        ":fallback_manager_test",
+        ":metrics_test",
+        ":pqc_network_filter_test",
+    ],
+)

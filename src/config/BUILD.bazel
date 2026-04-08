@@ -1,0 +1,84 @@
+# Proto definitions for PQC Envoy Filter configuration
+
+load("@envoy_api//bazel:api_build_system.bzl", "api_proto_package")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Proto library for PQC filter configuration
+proto_library(
+    name = "pqc_filter_proto",
+    srcs = ["pqc_filter.proto"],
+    deps = [
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+# C++ proto library
+cc_proto_library(
+    name = "pqc_filter_cc_proto",
+    deps = [":pqc_filter_proto"],
+)
+
+# Python proto library (for testing/tooling)
+py_proto_library(
+    name = "pqc_filter_py_proto",
+    srcs = ["pqc_filter.proto"],
+    deps = [
+        "@com_google_protobuf//:protobuf_python",
+    ],
+)
+
+# Validation library for proto configs
+cc_library(
+    name = "validator",
+    srcs = ["validator.cc"],
+    hdrs = ["validator.h"],
+    deps = [
+        ":pqc_filter_cc_proto",
+        "@envoy//source/common/common:assert_lib",
+        "@envoy//source/common/protobuf:utility_lib",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+# Feature flags configuration
+proto_library(
+    name = "feature_flags_proto",
+    srcs = ["feature_flags.proto"],
+    deps = [
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+cc_proto_library(
+    name = "feature_flags_cc_proto",
+    deps = [":feature_flags_proto"],
+)
+
+# Policy configuration
+proto_library(
+    name = "policy_proto",
+    srcs = ["policy.proto"],
+    deps = [
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+cc_proto_library(
+    name = "policy_cc_proto",
+    deps = [":policy_proto"],
+)
+
+# All config protos
+filegroup(
+    name = "all_protos",
+    srcs = [
+        "feature_flags.proto",
+        "policy.proto",
+        "pqc_filter.proto",
+    ],
+)
