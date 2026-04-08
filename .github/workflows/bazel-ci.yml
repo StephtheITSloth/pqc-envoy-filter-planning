@@ -10,31 +10,39 @@ on:
 jobs:
   bazel-build-test:
     name: Bazel Build & Test
+    # Use the Envoy build container which has Bazel, clang, and all deps pre-installed
     runs-on: ubuntu-latest
     container:
-      image: envoyproxy/envoy-dev:4f5386abdc9a52340a892e56ca8a50a6e196c98f
+      image: envoyproxy/envoy-build-ubuntu:4f5386abdc9a52340a892e56ca8a50a6e196c98f
+      options: --user root
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache Bazel
+      - name: Verify Bazel is available
+        run: bazel version
+
+      - name: Cache Bazel output base
         uses: actions/cache@v4
         with:
           path: |
             ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-${{ hashFiles('WORKSPACE', 'MODULE.bazel', '.bazelrc') }}
+          key: ${{ runner.os }}-bazel-${{ hashFiles('WORKSPACE', '.bazelrc') }}
           restore-keys: |
             ${{ runner.os }}-bazel-
+
+      - name: Build PQC context library
+        run: bazel build //src/filters/pqc:context_lib --config=fastbuild
 
       - name: Build PQC filter library
         run: bazel build //src/filters/pqc:pqc_filter_lib --config=fastbuild
 
-      - name: Run PQC filter unit tests
-        run: bazel test //test/filters/pqc:pqc_filter_test --test_output=all
-
       - name: Build all targets
         run: bazel build //... --config=fastbuild
+
+      - name: Run PQC filter unit tests
+        run: bazel test //test/filters/pqc:pqc_filter_test --test_output=all
 
       - name: Run all tests
         run: bazel test //... --test_output=errors
