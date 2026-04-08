@@ -1,6 +1,21 @@
-###############################################################################
-# Bazel now uses Bzlmod by default to manage external dependencies.
-# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
+# MODULE.bazel - Bazel Bzlmod configuration for pqc-envoy-filter
 #
-# For more details, please check https://github.com/bazelbuild/bazel/issues/18958
-###############################################################################
+# This project currently uses WORKSPACE for dependency management.
+# Dependencies are defined in the WORKSPACE file via http_archive rules.
+#
+# Future migration to Bzlmod is planned once Envoy upstream publishes
+# official Bazel Central Registry (BCR) modules for their build system.
+# See: https://github.com/bazelbuild/bazel-central-registry
+#
+# Current dependency graph (via WORKSPACE):
+#   envoy v1.28.0    -> main build system and filter API
+#   rules_proto      -> protobuf compilation
+#   com_google_protobuf -> protobuf runtime
+#   com_google_absl  -> Abseil C++ utilities
+#   com_google_googletest -> unit testing
+
+module(
+    name = "pqc_envoy_filter",
+    version = "0.1.0",
+    compatibility_level = 1,
+)
