@@ -26,12 +26,19 @@ jobs:
       - name: Cache Bazel output
         uses: actions/cache@v4
         with:
-          path: ~/.cache/bazel-disk-cache
-          key: ${{ runner.os }}-bazel-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion') }}
+          path: .bazel-disk-cache
+          key: ${{ runner.os }}-bazel-${{ hashFiles('WORKSPACE', 'MODULE.bazel', '.bazelrc', '.bazelversion') }}
           restore-keys: ${{ runner.os }}-bazel-
 
       - name: Verify Bazel version
         run: bazel version
+
+      - name: Verify Bazel mode
+        run: |
+          echo "Pinned Bazel version from .bazelversion:"
+          cat .bazelversion
+          echo
+          echo "Using WORKSPACE dependency resolution via .bazelrc"
 
       - name: Fetch external dependencies
         run: bazel fetch //...

@@ -52,14 +52,39 @@ public:
   
   // Get client IP address
   absl::optional<std::string> clientIp() const { return client_ip_; }
-  void setClientIp(absl::string_view ip) { 
-    client_ip_ = std::string(ip); 
+  void setClientIp(absl::string_view ip) {
+    client_ip_ = std::string(ip);
   }
-  
+
   // Get SNI (Server Name Indication)
   absl::optional<std::string> sni() const { return sni_; }
-  void setSni(absl::string_view sni) { 
-    sni_ = std::string(sni); 
+  void setSni(absl::string_view sni) {
+    sni_ = std::string(sni);
+  }
+
+  // Get the HTTP request method
+  absl::optional<std::string> requestMethod() const { return request_method_; }
+  void setRequestMethod(absl::string_view method) {
+    request_method_ = std::string(method);
+  }
+
+  // Get the HTTP request path
+  absl::optional<std::string> requestPath() const { return request_path_; }
+  void setRequestPath(absl::string_view path) {
+    request_path_ = std::string(path);
+  }
+
+  // Get the request authority/host header value
+  absl::optional<std::string> authority() const { return authority_; }
+  void setAuthority(absl::string_view authority) {
+    authority_ = std::string(authority);
+  }
+
+  // Get the service name resolved for downstream policy decisions.
+  // This is derived from authority first, then SNI if authority is unavailable.
+  absl::optional<std::string> serviceName() const { return service_name_; }
+  void setServiceName(absl::string_view service_name) {
+    service_name_ = std::string(service_name);
   }
 
 private:
@@ -70,6 +95,10 @@ private:
   absl::optional<uint64_t> handshake_duration_ms_;
   absl::optional<std::string> client_ip_;
   absl::optional<std::string> sni_;
+  absl::optional<std::string> request_method_;
+  absl::optional<std::string> request_path_;
+  absl::optional<std::string> authority_;
+  absl::optional<std::string> service_name_;
 };
 
 using PqcContextSharedPtr = std::shared_ptr<PqcContext>;

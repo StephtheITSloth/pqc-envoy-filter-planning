@@ -38,18 +38,20 @@ private:
       const pqc::envoy::config::v1::PqcFilter& proto_config,
       const std::string& stats_prefix,
       Server::Configuration::FactoryContext& context) override {
-    
+
     // Create shared config object
     auto config = std::make_shared<PqcFilterConfig>(proto_config);
-    
+    auto* cluster_manager = &context.clusterManager();
+
     // TODO: Use context for stats scope in observability phase
     // TODO: Use context for tracing in observability phase
     // TODO: Validate configuration
-    
+
     // Return factory callback that creates filter instances
-    return [config](Http::FilterChainFactoryCallbacks& callbacks) -> void {
+    return [config, cluster_manager](Http::FilterChainFactoryCallbacks& callbacks) -> void {
       // Create a new filter instance for each request
-      callbacks.addStreamDecoderFilter(std::make_shared<PqcFilter>(config));
+      callbacks.addStreamDecoderFilter(
+          std::make_shared<PqcFilter>(config, cluster_manager));
     };
   }
 };

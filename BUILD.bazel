@@ -1,0 +1,37 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["WORKSPACE"])
+
+# These package groups mirror the root labels Envoy's Bazel macros expect.
+# Keeping them here avoids visibility and repository-config failures when
+# consuming Envoy's build system from this workspace.
+package_group(
+    name = "extension_config",
+    packages = [
+        "//src/...",
+        "//test/...",
+    ],
+)
+
+package_group(
+    name = "extension_library",
+    packages = [
+        "//src/...",
+        "//test/...",
+    ],
+)
+
+package_group(
+    name = "contrib_library",
+    packages = [],
+)
+
+package_group(
+    name = "examples_library",
+    packages = [],
+)
+
+package_group(
+    name = "mobile_library",
+    packages = [],
+)

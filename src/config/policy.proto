@@ -23,15 +23,18 @@ message PolicyConfig {
 enum PolicyAction {
   // Unspecified action (invalid)
   ACTION_UNSPECIFIED = 0;
-  
+
   // Allow the connection
   ALLOW = 1;
-  
+
   // Deny the connection
   DENY = 2;
-  
+
   // Fallback to classical crypto
   FALLBACK = 3;
+
+  // Prefer the hybrid/PQC path when the downstream supports it
+  PREFER_HYBRID = 4;
 }
 
 // Route-specific policy

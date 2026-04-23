@@ -11,11 +11,31 @@ syntax = "proto3";
 
 package pqc.envoy.config.v1;
 
+import "src/config/policy.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/wrappers.proto";
 
 // [#protodoc-title: PQC Filter]
 // PQC filter configuration.
 // [#extension: envoy.filters.http.pqc]
+
+message PolicyService {
+  // Envoy cluster name for the external policy service.
+  string cluster = 1;
+
+  // HTTP path on the policy service.
+  string path = 2;
+
+  // Optional host/authority header override.
+  string authority = 3;
+
+  // Request timeout for the policy service call.
+  google.protobuf.Duration timeout = 4;
+
+  // When true, service failures fall back to the local policy evaluator.
+  // When false, service failures reject the request.
+  google.protobuf.BoolValue fail_open = 5;
+}
 
 // Main configuration for the PQC HTTP filter
 message PqcFilter {
@@ -40,9 +60,16 @@ message PqcFilter {
   // Enable the PQC filter
   // If false, filter passes through without modification
   google.protobuf.BoolValue enabled = 2;
-  
+
+  // Local policy configuration used by the MVP decision loop.
+  // A future Watsonx-backed client can replace the local evaluator
+  // without changing the filter/request contract.
+  PolicyConfig policy = 3;
+
+  // External policy service used for the full MVP decision loop.
+  PolicyService policy_service = 4;
+
   // TODO: Add feature flags configuration
-  // TODO: Add policy engine configuration
   // TODO: Add fallback configuration
   // TODO: Add observability configuration
 }

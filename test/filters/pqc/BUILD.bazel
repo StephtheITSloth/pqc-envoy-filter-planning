@@ -20,6 +20,8 @@ envoy_cc_test(
         "//src/config:pqc_filter_cc_proto",
         "@envoy//test/mocks/http:http_mocks",
         "@envoy//test/mocks/server:server_mocks",
+        "@envoy//test/mocks/upstream:upstream_mocks",
+        "@envoy//source/common/http:message_lib",
         "@envoy//test/test_common:utility_lib",
         "@com_google_googletest//:gtest",
     ],
@@ -48,6 +50,19 @@ envoy_cc_test(
         "//src/filters/pqc:policy_engine_lib",
         "//src/filters/pqc:context_lib",
         "//src/config:policy_cc_proto",
+        "@envoy//test/test_common:utility_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+envoy_cc_test(
+    name = "agent_policy_client_test",
+    srcs = ["agent_policy_client_test.cc"],
+    repository = "@envoy",
+    deps = [
+        "//src/filters/pqc:agent_policy_client_lib",
+        "//src/config:policy_cc_proto",
+        "//src/config:pqc_filter_cc_proto",
         "@envoy//test/test_common:utility_lib",
         "@com_google_googletest//:gtest",
     ],
@@ -100,6 +115,7 @@ test_suite(
     tests = [
         ":pqc_filter_test",
         ":context_test",
+        ":agent_policy_client_test",
         ":policy_engine_test",
         ":fallback_manager_test",
         ":metrics_test",

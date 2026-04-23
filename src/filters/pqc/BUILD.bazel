@@ -1,12 +1,12 @@
 load(
     "@envoy//bazel:envoy_build_system.bzl",
     "envoy_cc_library",
-    "envoy_extension_package",
+    "envoy_package",
 )
 
 licenses(["notice"])
 
-envoy_extension_package()
+envoy_package()
 
 filegroup(
     name = "all_sources",
@@ -37,8 +37,25 @@ envoy_cc_library(
     repository = "@envoy",
     deps = [
         ":context_lib",
-        "//src/config:pqc_filter_cc_proto",
+        "//src/config:policy_cc_proto",
         "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+envoy_cc_library(
+    name = "agent_policy_client_lib",
+    srcs = ["agent_policy_client.cc"],
+    hdrs = ["agent_policy_client.h"],
+    repository = "@envoy",
+    deps = [
+        ":context_lib",
+        ":policy_engine_lib",
+        "//src/config:policy_cc_proto",
+        "//src/config:pqc_filter_cc_proto",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
     ],
 )
 
@@ -104,17 +121,26 @@ envoy_cc_library(
     hdrs = ["pqc_filter.h"],
     repository = "@envoy",
     deps = [
+        ":agent_policy_client_lib",
         ":context_lib",
-        ":policy_engine_lib",
         ":metrics_lib",
         ":logger_lib",
         ":fallback_manager_lib",
+        "//src/config:policy_cc_proto",
         "//src/config:pqc_filter_cc_proto",
+        "@envoy//envoy/http:async_client_interface",
         "@envoy//envoy/http:filter_interface",
         "@envoy//envoy/server:filter_config_interface",
+        "@envoy//envoy/upstream:cluster_manager_interface",
         "@envoy//source/common/common:assert_lib",
         "@envoy//source/common/http:header_map_lib",
         "@envoy//source/common/http:headers_lib",
+        "@envoy//source/common/http:message_lib",
+        "@envoy//source/common/http:utility_lib",
+        "@envoy//source/common/json:json_loader_lib",
+        "@envoy//source/common/protobuf:utility_lib",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
     ],
 )

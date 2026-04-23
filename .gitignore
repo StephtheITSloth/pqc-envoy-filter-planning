@@ -40,6 +40,10 @@ AI_AGENT_IMPLEMENTATION_ROADMAP_PROMPT.md
 # Bazel
 bazel-*
 .bazelrc.user
+.bazel-disk-cache/
+.bazel-user-root/
+.bazel-user-root-*/
+%workspace%/
 
 # C++ build artifacts
 *.o

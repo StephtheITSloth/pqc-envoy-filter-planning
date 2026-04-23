@@ -1,5 +1,9 @@
 # Bazel configuration for PQC Envoy Filter
 
+# This repo currently resolves external dependencies through WORKSPACE.
+# Keep Bazel on the legacy path until Bzlmod migration is completed.
+common --noenable_bzlmod
+
 # C++ standard
 build --cxxopt=-std=c++17
 build --host_cxxopt=-std=c++17
@@ -83,7 +87,7 @@ build:windows --host_cxxopt=/std:c++17
 build --jobs=auto
 
 # Disk cache
-build --disk_cache=/tmp/bazel-disk-cache
+build --disk_cache=.bazel-disk-cache
 
 # Remote cache (optional, configure if available)
 # build --remote_cache=grpc://your-cache-server:port

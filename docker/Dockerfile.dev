@@ -1,10 +1,12 @@
 # Development Docker container for PQC Envoy Filter
-# Includes Bazel, build tools, and all dependencies
-FROM envoyproxy/envoy-dev:4f5386abdc9a52340a892e56ca8a50a6e196c98f
+# Includes Bazel, build tools, and all dependencies.
+# Pin the current pullable Envoy dev image by digest for reproducible CI.
+FROM envoyproxy/envoy-dev@sha256:d0d3873487c5184b4fc84b7b708019687a2fb58390f75358c685e7bba93e5a44
 
 WORKDIR /workspace
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     vim \
     git \
     curl \
@@ -19,8 +21,10 @@ RUN wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases
 
 RUN mkdir -p /root/.cache/bazel
 
-COPY WORKSPACE .bazelrc ./
+COPY WORKSPACE BUILD.bazel .bazelrc .bazelversion ./
 COPY src/ ./src/
 COPY test/ ./test/
+
+RUN chown -R envoy:envoy /workspace
 
 CMD ["/bin/bash"]

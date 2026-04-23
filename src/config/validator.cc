@@ -16,7 +16,15 @@ absl::Status validateConfig(const pqc::envoy::config::v1::PqcFilter& config) {
   if (!mode_status.ok()) {
     return mode_status;
   }
-  
+
+  if (config.has_policy_service()) {
+    const auto& policy_service = config.policy_service();
+    if (policy_service.cluster().empty()) {
+      return absl::InvalidArgumentError(
+          "policy_service.cluster must be set when policy_service is configured");
+    }
+  }
+
   // TODO: Add more validation rules in later steps
   // - Validate policy configuration
   // - Validate feature flags

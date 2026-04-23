@@ -11,6 +11,8 @@ proto_library(
     name = "pqc_filter_proto",
     srcs = ["pqc_filter.proto"],
     deps = [
+        ":policy_proto",
+        "@com_google_protobuf//:duration_proto",
         "@com_google_protobuf//:wrappers_proto",
     ],
 )
@@ -36,6 +38,7 @@ cc_library(
     srcs = ["validator.cc"],
     hdrs = ["validator.h"],
     deps = [
+        ":policy_cc_proto",
         ":pqc_filter_cc_proto",
         "@envoy//source/common/common:assert_lib",
         "@envoy//source/common/protobuf:utility_lib",
