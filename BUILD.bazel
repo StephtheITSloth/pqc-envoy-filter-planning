@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package(default_visibility = ["//visibility:public"])
 
 exports_files(["WORKSPACE"])
@@ -35,3 +36,19 @@ package_group(
     name = "mobile_library",
     packages = [],
 )
+=======
+# Root BUILD.bazel
+# Required by Bazel to recognize the repo root as a package.
+# envoy_extension_package() in sub-packages references //:mobile_library
+# which is declared here by envoy_extension_package() at root level.
+
+load(
+    "@envoy//bazel:envoy_build_system.bzl",
+    "envoy_cc_library",
+    "envoy_extension_package",
+)
+
+licenses(["notice"])  # Apache 2
+
+envoy_extension_package()
+>>>>>>> d920cdd3ae0bc2aaac9bd8c72444e9acef01443c
